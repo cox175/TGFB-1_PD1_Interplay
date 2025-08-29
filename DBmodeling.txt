@@ -1,0 +1,72 @@
+[LONGITUDINAL]
+
+INPUT:
+parameter = {K, lambdaB, rhoTB,  alphaTB, alphaPDB, kon, koff}
+regressor={Modeltype}
+
+
+EQUATION:
+
+s=60
+rhoC=.35
+t0 = 0 ; initial time
+C_0 = 30 ; initial cancer dose
+T_0 = 3 ; initial T cells
+TB_0=0 ; initial TGF-Beta1+ cells
+B_0=s ; initial concentration of TGF-Beta1
+;lambdaB = 8.5
+rhoT = 1.88 * 10^-6  
+alphaT = 6.8 *10^-5
+alphaPD = 1 * 10^-5
+;K = .3
+;kon = 200
+;koff = 15
+
+if t<9
+     stepPD = 0
+else
+     stepPD = 1
+end
+
+if t<12
+     Tcelldeath = 0
+else
+     Tcelldeath = 1
+end
+
+if t<9
+     stepDB = 0
+else
+     stepDB = 1
+end
+
+
+if Modeltype==1
+     dC=rhoC*C-alphaT*C*T-alphaTB*C*TB
+     dT=rhoT*T*C-kon*T*B+koff*TB
+     dTB=rhoTB*TB*C+kon*T*B-koff*TB
+     dB=s-kon*T*B+koff*TB-lambdaB*B
+elseif Modeltype==2
+     dC=rhoC*C-alphaT*C*T-alphaTB*C*TB
+     dT=rhoT*T*C-kon*T*B+koff*TB
+     dTB=rhoTB*TB*C+kon*T*B-koff*TB
+     dB=(1-stepDB*K)*s-kon*T*B+koff*TB-lambdaB*B
+elseif Modeltype==3	
+     dC=rhoC*C-(alphaT+stepPD*alphaPD)*C*T-(alphaTB+stepPD*alphaPDB)*C*TB
+     dT=rhoT*T*C-kon*T*B+koff*TB
+     dTB=rhoTB*TB*C+kon*T*B-koff*TB
+     dB=s-kon*T*B+koff*TB-lambdaB*B
+elseif Modeltype==4
+     dC=rhoC*C-(alphaT+stepPD*alphaPD)*C*T-(alphaTB+stepPD*alphaPDB)*C*TB
+     dT=rhoT*T*C-kon*T*B+koff*TB
+     dTB=rhoTB*TB*C+kon*T*B-koff*TB
+     dB=(1-stepDB*K)*s-kon*T*B+koff*TB-lambdaB*B
+end
+
+ddt_C=dC
+ddt_T=dT
+ddt_TB=dTB
+ddt_B=dB
+
+OUTPUT:
+output = {C} ; output tumor area

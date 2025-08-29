@@ -1,0 +1,67 @@
+<DATAFILE>
+
+[FILEINFO]
+file = 'DabigatranMonolixData.csv'
+delimiter = comma
+header = {ID, Modeltype, Time, Observation, Observation_ID}
+
+[CONTENT]
+ID = {use=identifier}
+Modeltype = {use=regressor}
+Time = {use=time}
+Observation = {use=observation, name=Observation, type=continuous}
+
+<MODEL>
+
+[INDIVIDUAL]
+input = {alphaTB_pop, omega_alphaTB, rhoTB_pop, omega_rhoTB, alphaPDB_pop, omega_alphaPDB, koff_pop, omega_koff, kon_pop, omega_kon}
+
+DEFINITION:
+alphaTB = {distribution=logNormal, typical=alphaTB_pop, sd=omega_alphaTB}
+rhoTB = {distribution=logNormal, typical=rhoTB_pop, sd=omega_rhoTB}
+alphaPDB = {distribution=logNormal, typical=alphaPDB_pop, sd=omega_alphaPDB}
+koff = {distribution=logNormal, typical=koff_pop, sd=omega_koff}
+kon = {distribution=logNormal, typical=kon_pop, sd=omega_kon}
+
+[LONGITUDINAL]
+input = {b}
+
+file = 'DBmodeling.txt'
+
+DEFINITION:
+Observation = {distribution=normal, prediction=C, errorModel=proportional(b)}
+
+<FIT>
+data = Observation
+model = Observation
+
+<PARAMETER>
+alphaPDB_pop = {value=0.0013537245754082, method=MLE}
+alphaTB_pop = {value=0.0304827100062361, method=MLE}
+b = {value=0.5410726834943548, method=MLE}
+koff_pop = {value=15, method=MLE}
+kon_pop = {value=1, method=MLE}
+omega_alphaPDB = {value=3.869560219901279, method=MLE}
+omega_alphaTB = {value=2.191071588553703, method=MLE}
+omega_koff = {value=1, method=MLE}
+omega_kon = {value=1, method=MLE}
+omega_rhoTB = {value=1.994911329433526, method=MLE}
+rhoTB_pop = {value=0.0000542829076688, method=MLE}
+
+<MONOLIX>
+
+[TASKS]
+populationParameters()
+individualParameters(method = {conditionalMean, conditionalMode })
+fim(method = StochasticApproximation)
+logLikelihood(method = ImportanceSampling)
+plotResult(method = {outputplot, indfits, obspred, residualsscatter, residualsdistribution, parameterdistribution, covariatemodeldiagnosis, randomeffects, covariancemodeldiagnosis, saemresults })
+
+[SETTINGS]
+GLOBAL:
+exportpath = 'DabigatranMonolixFinal3'
+
+FIM:
+miniterations = 100
+maxiterations = 1000
+
